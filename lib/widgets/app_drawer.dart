@@ -14,24 +14,24 @@ class AppDrawer extends StatelessWidget {
             title: Text('data'),
             automaticallyImplyLeading: false,
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            leading: Icon(Icons.shop),
-            title: Text('Shop'),
+            leading: const Icon(Icons.shop),
+            title: const Text('Shop'),
             onTap: () {
               Navigator.of(context).pushReplacementNamed('/');
             },
           ),
           ListTile(
-            leading: Icon(Icons.payment),
-            title: Text('Order'),
+            leading: const Icon(Icons.payment),
+            title: const Text('Order'),
             onTap: () {
               Navigator.of(context).pushReplacementNamed(OrderScreen.routeName);
             },
           ),
           ListTile(
-            leading: Icon(Icons.manage_accounts),
-            title: Text('Manage Products'),
+            leading: const Icon(Icons.manage_accounts),
+            title: const Text('Manage Products'),
             onTap: () {
               Navigator.of(context).pushReplacementNamed(UserProduct.routeName);
             },

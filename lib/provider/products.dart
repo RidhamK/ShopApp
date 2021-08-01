@@ -1,17 +1,21 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shopapp/modal/http_exception.dart';
 import 'product.dart';
 
 class Products with ChangeNotifier {
-  final List<Product> item = [
-    // Product(
-    //   id: 'p1',
-    //   title: 'Red Shirt',
-    //   description: 'A red shirt - it is pretty red!',
-    //   price: 29.99,
-    //   imageUrl:
-    //       'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
-    // ),
+  List<Product> item = [
+    Product(
+      id: 'p1',
+      title: 'Red Shirt',
+      description: 'A red shirt - it is pretty red!',
+      price: 29.99,
+      imageUrl:
+          'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
+    ),
     // Product(
     //   id: 'p2',
     //   title: 'Trousers',
@@ -34,9 +38,12 @@ class Products with ChangeNotifier {
     //   description: 'Prepare any meal you want.',
     //   price: 49.99,
     //   imageUrl:
-    //       'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-    // ),
+    //        // ),
   ];
+
+  // final String? authtoken;
+
+  // Products([this.authtoken, this.item]);
 
   List<Product> get items {
     return [...item];
@@ -50,15 +57,100 @@ class Products with ChangeNotifier {
     return item.where((element) => element.isFavorite).toList();
   }
 
-  void addProduct(Product product) {
-    final newProduct = Product(
-        id: DateTime.now().toString(),
-        description: product.description,
-        title: product.title,
-        imageUrl: product.imageUrl,
-        price: product.price);
-    item.add(newProduct);
-    // iten.insert(0,newProduct);
+  Future<void> fetchData() async {
+    final url = Uri.parse(
+        'https://shop-app-cee2b-default-rtdb.firebaseio.com//products.json');
+
+    try {
+      final List<Product> lodadedProd = [];
+      final response = await http.get(url);
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      print(extractedData);
+      extractedData.forEach((key, value) {
+        lodadedProd.add(Product(
+          id: key,
+          description: value['description'] as String,
+          title: value['title'] as String,
+          imageUrl: value['imageUrl'] as String,
+          price: value['price'],
+          isFavorite: value['isFavorite'],
+        ));
+      });
+
+      item = lodadedProd;
+
+      notifyListeners();
+    } catch (error) {
+      print('aaaaaaaaaaa${item.runtimeType}');
+      rethrow;
+    }
+  }
+
+  Future<void> addProduct(Product product) async {
+    try {
+      final url = Uri.parse(
+          "https://shop-app-cee2b-default-rtdb.firebaseio.com//products.json");
+      final response = await http.post(
+        url,
+        body: json.encode(
+          {
+            'title': product.title,
+            'description': product.description,
+            'price': product.price,
+            'imageUrl': product.imageUrl,
+            'isFavorite': product.isFavorite,
+          },
+        ),
+      );
+      final newProduct = Product(
+          id: json.decode(response.body)['name'],
+          description: product.description,
+          title: product.title,
+          imageUrl: product.imageUrl,
+          price: product.price);
+      item.add(newProduct);
+      notifyListeners();
+    } catch (error) {
+      print(error);
+      rethrow;
+    }
+  }
+
+  Future<void> updateProduct(String id, Product newProduct) async {
+    final prodIndex = item.indexWhere((prod) => prod.id == id);
+
+    if (prodIndex >= 0) {
+      final url = Uri.parse(
+          "https://shop-app-cee2b-default-rtdb.firebaseio.com//products/$id.json");
+
+      await http.patch(url,
+          body: json.encode({
+            'title': newProduct.title,
+            'description': newProduct.description,
+            'imageUrl': newProduct.imageUrl,
+            'price': newProduct.price
+          }));
+      item[prodIndex] = newProduct;
+      notifyListeners();
+    } else {
+      print('...');
+    }
+  }
+
+  Future<void> delProduct(String id) async {
+    final url = Uri.parse(
+        "https://shop-app-cee2b-default-rtdb.firebaseio.com//products/$id.json");
+
+    final index = item.indexWhere((prod) => prod.id == id);
+    Product? existingProduct = item[index];
+    item.removeAt(index);
     notifyListeners();
+    final response = await http.delete(url);
+    if (response.statusCode >= 400) {
+      item.insert(index, existingProduct);
+      notifyListeners();
+      throw HttpExtentions('colud not delete product');
+    }
+    existingProduct = null;
   }
 }

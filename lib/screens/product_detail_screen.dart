@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shopapp/provider/products.dart';
 
 class ProductDetailScreen extends StatelessWidget {
-  // const ProductDetailScreen({Key? key}) : super(key: key);
+  const ProductDetailScreen({Key? key}) : super(key: key);
   // final String title;
   // ProductDetailScreen(this.title);
   static const routeName = 'product-detailpge';
@@ -22,23 +22,23 @@ class ProductDetailScreen extends StatelessWidget {
           Container(
             width: double.infinity,
             height: 300,
-            margin: EdgeInsets.all(10),
+            margin: const EdgeInsets.all(10),
             child: Image.network(
               loadedProducts.imageUrl,
               fit: BoxFit.cover,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Text(
             '\$${loadedProducts.price}',
-            style: TextStyle(color: Colors.grey, fontSize: 20),
+            style: const TextStyle(color: Colors.grey, fontSize: 20),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             loadedProducts.description,
-            style: TextStyle(fontSize: 15),
+            style: const TextStyle(fontSize: 15),
           )
         ],
       ),

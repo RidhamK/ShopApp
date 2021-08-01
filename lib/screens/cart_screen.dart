@@ -12,6 +12,24 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
+    var children2 = [
+      Text(
+        'Total',
+        style: TextStyle(
+          fontSize: 20,
+          color: Theme.of(context).primaryColor,
+        ),
+      ),
+      const Spacer(),
+      Chip(
+        label: Text(
+          '\$ ${cart.totalAmount.toStringAsFixed(2)}',
+          style: TextStyle(color: Theme.of(context).scaffoldBackgroundColor),
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
+      OrderButton(cart: cart),
+    ];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your cart'),
@@ -21,38 +39,7 @@ class CartScreen extends StatelessWidget {
           Card(
             margin: const EdgeInsets.all(10),
             child: Row(
-              children: [
-                Text(
-                  'Total',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                const Spacer(),
-                Chip(
-                  label: Text(
-                    '\$ ${cart.totalAmount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                        color: Theme.of(context).scaffoldBackgroundColor),
-                  ),
-                  backgroundColor: Theme.of(context).primaryColor,
-                ),
-                TextButton(
-                  onPressed: () {
-                    Provider.of<Order>(context, listen: false).addOrder(
-                      cart.totalAmount,
-                      cart.items.values.toList(),
-                    );
-                    Navigator.of(context).pushNamed(OrderScreen.routeName);
-                    cart.clearCart();
-                  },
-                  child: Text(
-                    'Order Now',
-                    style: TextStyle(color: Theme.of(context).primaryColor),
-                  ),
-                ),
-              ],
+              children: children2,
             ),
           ),
           const SizedBox(
@@ -71,6 +58,49 @@ class CartScreen extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    Key? key,
+    required this.cart,
+  }) : super(key: key);
+
+  final Cart cart;
+
+  @override
+  State<OrderButton> createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading = false;
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: (widget.cart.totalAmount == 0 || _isLoading)
+          ? null
+          : () async {
+              setState(() {
+                _isLoading = true;
+              });
+              Provider.of<Order>(context, listen: false).addOrder(
+                widget.cart.totalAmount,
+                widget.cart.items.values.toList(),
+              );
+              // Navigator.of(context).pushNamed(OrderScreen.routeName);
+              setState(() {
+                _isLoading = false;
+              });
+              widget.cart.clearCart();
+            },
+      child: _isLoading
+          ? const CircularProgressIndicator()
+          : Text(
+              'Order Now',
+              style: TextStyle(color: Theme.of(context).primaryColor),
+            ),
     );
   }
 }

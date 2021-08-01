@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shopapp/provider/auth.dart';
+import 'package:shopapp/screens/auth_screen.dart';
 import './provider/cart.dart';
 import './provider/order.dart';
 import './screens/cart_screen.dart';
@@ -24,6 +26,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
+          create: (ctx) => Auth(),
+        ),
+        ChangeNotifierProvider(
           create: (ctx) => Products(),
         ),
         ChangeNotifierProvider(
@@ -33,20 +38,24 @@ class MyApp extends StatelessWidget {
           create: (ctx) => Order(),
         ),
       ],
-      child: MaterialApp(
-        title: 'Shopping',
-        theme: ThemeData(
-            primarySwatch: Colors.purple,
-            // ignore: deprecated_member_use
-            accentColor: Colors.orangeAccent),
-        home: const ProductOverview(),
-        routes: {
-          ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
-          CartScreen.routeName: (ctx) => const CartScreen(),
-          OrderScreen.routeName: (ctx) => const OrderScreen(),
-          UserProduct.routeName: (ctx) => const UserProduct(),
-          EditProduct.routeName: (ctx) => const EditProduct(),
-        },
+      child: Consumer<Auth>(
+        builder: (ctx, auth, _) => MaterialApp(
+          title: 'Shopping',
+          theme: ThemeData(
+              primarySwatch: Colors.purple,
+              // ignore: deprecated_member_use
+              accentColor: Colors.orangeAccent),
+          // home: const ProductOverview(),
+          home: auth.isAuth ? ProductOverview() : AuthScreen(),
+          routes: {
+            ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+            CartScreen.routeName: (ctx) => const CartScreen(),
+            OrderScreen.routeName: (ctx) => const OrderScreen(),
+            UserProduct.routeName: (ctx) => const UserProduct(),
+            EditProduct.routeName: (ctx) => const EditProduct(),
+            // AuthScreen.routeName: (ctx) => AuthScreen(),
+          },
+        ),
       ),
     );
   }

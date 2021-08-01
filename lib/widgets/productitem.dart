@@ -6,7 +6,7 @@ import 'package:shopapp/provider/product.dart';
 import 'package:shopapp/screens/product_detail_screen.dart';
 
 class ProductItem extends StatelessWidget {
-  // const ProductItem({Key? key}) : super(key: key);
+  const ProductItem({Key? key}) : super(key: key);
   // String id;
   // String title;
   // String imageUrl;
@@ -50,21 +50,21 @@ class ProductItem extends StatelessWidget {
           ),
           trailing: IconButton(
             onPressed: () {
-              cart.addItem(product.id, product.price, product.title);
+              cart.addItem(product.id.toString(), product.price, product.title);
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('add to cart'),
-                  duration: Duration(seconds: 3),
+                  content: const Text('add to cart'),
+                  duration: const Duration(seconds: 3),
                   action: SnackBarAction(
                       label: 'Undo',
                       onPressed: () {
-                        cart.removeSingleItem(product.id);
+                        cart.removeSingleItem(product.id.toString());
                       }),
                 ),
               );
             },
-            icon: Icon(Icons.shopping_cart),
+            icon: const Icon(Icons.shopping_cart),
           ),
         ),
       ),
