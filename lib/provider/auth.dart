@@ -1,12 +1,16 @@
 import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
-import 'package:shopapp/modal/http_exception.dart';
 
 class Auth with ChangeNotifier {
   String? _token;
   DateTime? _expiryDate;
   late String _userId;
+
+  String get userId {
+    return _userId;
+  }
 
   bool get isAuth {
     return token != null;
@@ -21,42 +25,10 @@ class Auth with ChangeNotifier {
     return null;
   }
 
-  Future<void> signUp(String email, String password) async {
+  Future<void> authantication(
+      String email, String password, String urlSegment) async {
     final url = Uri.parse(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyC-dpaTOWiaP9hmQLh6bj5mBecdzfbANXg');
-    try {
-      final response = await http.post(
-        url,
-        body: json.encode({
-          'email': email,
-          'password': password,
-          'returnSecureToken': true,
-        }),
-      );
-      print(response.statusCode);
-
-      final responseData = json.decode(response.body);
-      if (responseData['error'] != null) {
-        throw HttpExtentions(responseData['error']['message']);
-      }
-      _token = responseData['idToken'];
-      _userId = responseData['localId'];
-      _expiryDate = DateTime.now().add(
-        Duration(
-          seconds: int.parse(
-            responseData['expiresIn'],
-          ),
-        ),
-      );
-      notifyListeners();
-    } catch (error) {
-      rethrow;
-    }
-  }
-
-  Future<void> login(String email, String password) async {
-    final url = Uri.parse(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyC-dpaTOWiaP9hmQLh6bj5mBecdzfbANXg');
+        'https://identitytoolkit.googleapis.com/v1/accounts:$urlSegment?key=AIzaSyC-dpaTOWiaP9hmQLh6bj5mBecdzfbANXg');
     try {
       final response = await http.post(
         url,
@@ -72,7 +44,7 @@ class Auth with ChangeNotifier {
       final responseData = json.decode(response.body);
       if (responseData['error'] != null) {
         // throw HttpExtentions(responseData['error']['message']);
-        print('object');
+
       }
       _token = responseData['idToken'];
       _userId = responseData['localId'];
@@ -87,5 +59,13 @@ class Auth with ChangeNotifier {
     } catch (error) {
       rethrow;
     }
+  }
+
+  Future<void> signUp(String email, String password) async {
+    return authantication(email, password, 'signUp');
+  }
+
+  Future<void> login(String email, String password) async {
+    return authantication(email, password, 'signInWithPassword');
   }
 }

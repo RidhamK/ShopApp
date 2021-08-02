@@ -21,45 +21,53 @@ class OrderItem {
 
 class Order with ChangeNotifier {
   List<OrderItem> _orders = [];
+  String? token;
+  Order(this.token, this._orders);
 
   List<OrderItem> get orders {
     return [..._orders];
   }
 
   Future<void> addOrder(double totalAmount, List<CartItem> cartProducts) async {
-    final url = Uri.parse(
-        "https://shop-app-cee2b-default-rtdb.firebaseio.com//orders/.json");
-    final tTime = DateTime.now();
-    final response = await http.post(url,
-        body: json.encode({
-          'price': totalAmount,
-          'dateTime': tTime.toIso8601String(),
-          'products': cartProducts
-              .map((cp) => {
-                    'id': cp.id,
-                    'title': cp.title,
-                    'quantity': cp.quantity,
-                    'price': cp.price,
-                  })
-              .toList(),
-        }));
-    _orders.insert(
-      0,
-      OrderItem(
-        id: json.decode(response.body)['name'],
-        price: totalAmount,
-        dateTime: tTime,
-        products: cartProducts,
-      ),
-    );
-    notifyListeners();
+    // final url = 'https://flutter-update.firebaseio.com/orders.json?auth=$authToken';
+    try {
+      final url = Uri.parse(
+          "https://shop-app-cee2b-default-rtdb.firebaseio.com/orders.json?auth=$token");
+      final tTime = DateTime.now();
+      final response = await http.post(url,
+          body: json.encode({
+            'price': totalAmount,
+            'dateTime': tTime.toIso8601String(),
+            'products': cartProducts
+                .map((cp) => {
+                      'id': cp.id,
+                      'title': cp.title,
+                      'quantity': cp.quantity,
+                      'price': cp.price,
+                    })
+                .toList(),
+          }));
+      _orders.insert(
+        0,
+        OrderItem(
+          id: json.decode(response.body)['name'],
+          price: totalAmount,
+          dateTime: tTime,
+          products: cartProducts,
+        ),
+      );
+      notifyListeners();
+    } catch (error) {
+      // print(error);
+    }
   }
 
   Future<void> fetchAndSet() async {
+    // try {
     final url = Uri.parse(
-        "https://shop-app-cee2b-default-rtdb.firebaseio.com//orders/.json");
+        "https://shop-app-cee2b-default-rtdb.firebaseio.com/orders.json?auth=$token");
     final response = await http.get(url);
-    print(json.decode(response.body));
+    // print(json.decode(response.body));
     final List<OrderItem> loadedOrder = [];
     final Map<String, dynamic>? extractedData =
         json.decode(response.body) as Map<String, dynamic>;
@@ -86,5 +94,9 @@ class Order with ChangeNotifier {
     });
     _orders = loadedOrder.reversed.toList();
     notifyListeners();
+    // }
+    // catch (error) {
+    //   // print(error);
+    // }
   }
 }

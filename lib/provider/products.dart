@@ -41,9 +41,10 @@ class Products with ChangeNotifier {
     //        // ),
   ];
 
-  // final String? authtoken;
+  final String? authtoken;
+  // final Product previousProducts;
 
-  // Products([this.authtoken, this.item]);
+  Products(this.authtoken, this.item);
 
   List<Product> get items {
     return [...item];
@@ -59,13 +60,13 @@ class Products with ChangeNotifier {
 
   Future<void> fetchData() async {
     final url = Uri.parse(
-        'https://shop-app-cee2b-default-rtdb.firebaseio.com//products.json');
+        'https://shop-app-cee2b-default-rtdb.firebaseio.com//products.json?auth=${authtoken}');
 
     try {
       final List<Product> lodadedProd = [];
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      print(extractedData);
+      // print(extractedData);
       extractedData.forEach((key, value) {
         lodadedProd.add(Product(
           id: key,
@@ -89,7 +90,7 @@ class Products with ChangeNotifier {
   Future<void> addProduct(Product product) async {
     try {
       final url = Uri.parse(
-          "https://shop-app-cee2b-default-rtdb.firebaseio.com//products.json");
+          "https://shop-app-cee2b-default-rtdb.firebaseio.com//products.json?auth=${authtoken}");
       final response = await http.post(
         url,
         body: json.encode(
@@ -121,7 +122,7 @@ class Products with ChangeNotifier {
 
     if (prodIndex >= 0) {
       final url = Uri.parse(
-          "https://shop-app-cee2b-default-rtdb.firebaseio.com//products/$id.json");
+          "https://shop-app-cee2b-default-rtdb.firebaseio.com//products/$id.json?auth=${authtoken}");
 
       await http.patch(url,
           body: json.encode({
@@ -139,7 +140,7 @@ class Products with ChangeNotifier {
 
   Future<void> delProduct(String id) async {
     final url = Uri.parse(
-        "https://shop-app-cee2b-default-rtdb.firebaseio.com//products/$id.json");
+        "https://shop-app-cee2b-default-rtdb.firebaseio.com//products/$id.json?auth=${authtoken}");
 
     final index = item.indexWhere((prod) => prod.id == id);
     Product? existingProduct = item[index];
