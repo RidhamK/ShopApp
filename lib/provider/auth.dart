@@ -6,10 +6,10 @@ import 'package:http/http.dart' as http;
 class Auth with ChangeNotifier {
   String? _token;
   DateTime? _expiryDate;
-  late String _userId;
+  String? _userId;
 
   String get userId {
-    return _userId;
+    return _userId!;
   }
 
   bool get isAuth {
@@ -67,5 +67,12 @@ class Auth with ChangeNotifier {
 
   Future<void> login(String email, String password) async {
     return authantication(email, password, 'signInWithPassword');
+  }
+
+  void logout() {
+    _token = null;
+    _userId = null;
+    _expiryDate = null;
+    notifyListeners();
   }
 }

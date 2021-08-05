@@ -8,14 +8,14 @@ import 'product.dart';
 
 class Products with ChangeNotifier {
   List<Product> item = [
-    Product(
-      id: 'p1',
-      title: 'Red Shirt',
-      description: 'A red shirt - it is pretty red!--',
-      price: 29.99,
-      imageUrl:
-          'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
-    ),
+    // Product(
+    //   id: 'p1',
+    //   title: 'Red Shirt',
+    //   description: 'A red shirt - it is pretty red!--',
+    //   price: 29.99,
+    //   imageUrl:
+    //       'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
+    // ),
     // Product(
     //   id: 'p2',
     //   title: 'Trousers',
@@ -63,40 +63,73 @@ class Products with ChangeNotifier {
     return item.where((element) => element.isFavorite).toList();
   }
 
-  Future<void> fetchData() async {
+  // Future<void> fetchData() async {
+  //   var url = Uri.parse(
+  //       'https://shop-app-cee2b-default-rtdb.firebaseio.com//products.json?auth=$authtoken');
+  //   try {
+  //     final List<Product> lodadedProd = [];
+  //     final response = await http.get(url);
+  //     print('response ${response.statusCode}');
+  //     print('response ${response.body}');
+  //     final extractedData = json.decode(response.body) as Map<String, dynamic>;
+  //     print('a');
+
+  //     url = Uri.parse(
+  //         'https://shop-app-cee2b-default-rtd,b.firebaseio.com/userFav/$userId.json?auth=$authtoken');
+
+  //     final favoriteResponse = await http.get(url);
+  //     print('FavResponse ${favoriteResponse.statusCode}');
+  //     final favoriteData = json.decode(favoriteResponse.body);
+
+  //     extractedData.forEach((key, value) {
+  //       lodadedProd.add(Product(
+  //         id: key,
+  //         description: value['description'],
+  //         title: value['title'],
+  //         imageUrl: value['imageUrl'],
+  //         price: value['price'],
+  //         isFavorite: favoriteData == null ? false : favoriteData[key] ?? false,
+  //       ));
+  //     });
+
+  //     item = lodadedProd;
+
+  //     notifyListeners();
+  //   } catch (error) {
+  //     print('Proiducts fetch error ');
+  //     // rethrow;
+  //   }
+  // }
+
+  Future<void> fetchData([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? 'orderBy="CreatorId"&equalTo="$userId"' : '';
     var url = Uri.parse(
-        'https://shop-app-cee2b-default-rtdb.firebaseio.com//products.json?auth=$authtoken');
-
+        'https://shop-app-cee2b-default-rtdb.firebaseio.com/products.json?auth=$authtoken&$filterString');
     try {
-      final List<Product> lodadedProd = [];
       final response = await http.get(url);
-      print('response ${response.statusCode}');
-      print('response ${response.body}');
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      final urll = Uri.parse(
-          'https://shop-app-cee2b-default-rtd,b.firebaseio.com/userFav/$userId.json?auth=$authtoken');
 
-      final favoriteResponse = await http.get(urll);
-      print('FavResponse ${favoriteResponse.statusCode}');
+      url = Uri.parse(
+          'https://shop-app-cee2b-default-rtdb.firebaseio.com/userFav/$userId.json?auth=$authtoken');
+      final favoriteResponse = await http.get(url);
       final favoriteData = json.decode(favoriteResponse.body);
-
-      extractedData.forEach((key, value) {
-        lodadedProd.add(Product(
-          id: key,
-          description: value['description'],
-          title: value['title'],
-          imageUrl: value['imageUrl'],
-          price: value['price'],
-          isFavorite: favoriteData == null ? false : favoriteData[key] ?? false,
+      final List<Product> loadedProducts = [];
+      extractedData.forEach((prodId, prodData) {
+        loadedProducts.add(Product(
+          id: prodId,
+          title: prodData['title'],
+          description: prodData['description'],
+          price: prodData['price'],
+          isFavorite:
+              favoriteData == null ? false : favoriteData[prodId] ?? false,
+          imageUrl: prodData['imageUrl'],
         ));
       });
-
-      item = lodadedProd;
-
+      item = loadedProducts;
       notifyListeners();
     } catch (error) {
-      print('Proiducts fetch error ');
-      // rethrow;
+      throw (error);
     }
   }
 

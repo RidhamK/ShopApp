@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +14,7 @@ class UserProduct extends StatelessWidget {
   static const routeName = 'user-Product';
   Future<void> _refresh(BuildContext context) async {
     try {
-      Provider.of<Products>(context, listen: false).fetchData();
+      Provider.of<Products>(context, listen: false).fetchData(true);
     } catch (e) {
       print('e');
     }
@@ -38,9 +40,8 @@ class UserProduct extends StatelessWidget {
         future: _refresh(context),
         builder: (context, snapshot) =>
             snapshot.connectionState == ConnectionState.waiting
-                // ignore: prefer_const_constructors
-                ? Center(
-                    child: const CircularProgressIndicator(),
+                ? const Center(
+                    child: CircularProgressIndicator(),
                   )
                 : RefreshIndicator(
                     onRefresh: () => _refresh(context),
