@@ -11,7 +11,7 @@ class Products with ChangeNotifier {
     Product(
       id: 'p1',
       title: 'Red Shirt',
-      description: 'A red shirt - it is pretty red!',
+      description: 'A red shirt - it is pretty red!--',
       price: 29.99,
       imageUrl:
           'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
@@ -42,9 +42,14 @@ class Products with ChangeNotifier {
   ];
 
   final String? authtoken;
+  String? userId;
   // final Product previousProducts;
 
-  Products(this.authtoken, this.item);
+  Products(
+    this.authtoken,
+    this.userId,
+    this.item,
+  );
 
   List<Product> get items {
     return [...item];
@@ -59,22 +64,30 @@ class Products with ChangeNotifier {
   }
 
   Future<void> fetchData() async {
-    final url = Uri.parse(
-        'https://shop-app-cee2b-default-rtdb.firebaseio.com//products.json?auth=${authtoken}');
+    var url = Uri.parse(
+        'https://shop-app-cee2b-default-rtdb.firebaseio.com//products.json?auth=$authtoken');
 
     try {
       final List<Product> lodadedProd = [];
       final response = await http.get(url);
+      print('response ${response.statusCode}');
+      print('response ${response.body}');
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      // print(extractedData);
+      final urll = Uri.parse(
+          'https://shop-app-cee2b-default-rtd,b.firebaseio.com/userFav/$userId.json?auth=$authtoken');
+
+      final favoriteResponse = await http.get(urll);
+      print('FavResponse ${favoriteResponse.statusCode}');
+      final favoriteData = json.decode(favoriteResponse.body);
+
       extractedData.forEach((key, value) {
         lodadedProd.add(Product(
           id: key,
-          description: value['description'] as String,
-          title: value['title'] as String,
-          imageUrl: value['imageUrl'] as String,
+          description: value['description'],
+          title: value['title'],
+          imageUrl: value['imageUrl'],
           price: value['price'],
-          isFavorite: value['isFavorite'],
+          isFavorite: favoriteData == null ? false : favoriteData[key] ?? false,
         ));
       });
 
@@ -82,15 +95,15 @@ class Products with ChangeNotifier {
 
       notifyListeners();
     } catch (error) {
-      print('aaaaaaaaaaa${item.runtimeType}');
-      rethrow;
+      print('Proiducts fetch error ');
+      // rethrow;
     }
   }
 
   Future<void> addProduct(Product product) async {
     try {
       final url = Uri.parse(
-          "https://shop-app-cee2b-default-rtdb.firebaseio.com//products.json?auth=${authtoken}");
+          "https://shop-app-cee2b-default-rtdb.firebaseio.com//products.json?auth=$authtoken");
       final response = await http.post(
         url,
         body: json.encode(
@@ -99,7 +112,7 @@ class Products with ChangeNotifier {
             'description': product.description,
             'price': product.price,
             'imageUrl': product.imageUrl,
-            'isFavorite': product.isFavorite,
+            'CreatorId': userId,
           },
         ),
       );
@@ -153,5 +166,6 @@ class Products with ChangeNotifier {
       throw HttpExtentions('colud not delete product');
     }
     existingProduct = null;
+    notifyListeners();
   }
 }
