@@ -32,9 +32,12 @@ class ProductItem extends StatelessWidget {
               arguments: product.id,
             );
           },
-          child: Image.network(
-            product.imageUrl,
-            fit: BoxFit.cover,
+          child: Hero(
+            tag: product.id as Object,
+            child: Image.network(
+              product.imageUrl,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
         footer: GridTileBar(
@@ -47,7 +50,7 @@ class ProductItem extends StatelessWidget {
             onPressed: () {
               product.toggeleFav(
                 authData.token!,
-                authData.userId,
+                authData.userId!,
               );
             },
             icon: Icon(

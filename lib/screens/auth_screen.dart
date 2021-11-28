@@ -63,16 +63,13 @@ class AuthScreen extends StatelessWidget {
                           )
                         ],
                       ),
-                      child: Text(
+                      child: const Text(
                         'MyShop',
                         style: TextStyle(
-                          color: Theme.of(context)
-                              .accentTextTheme
-                              .headline1!
-                              .backgroundColor,
-                          fontSize: 50,
+                          color: Colors.white,
+                          fontSize: 45,
                           fontFamily: 'Anton',
-                          fontWeight: FontWeight.normal,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -144,7 +141,7 @@ class _AuthCardState extends State<AuthCard> {
           _authData['email']!,
           _authData['password']!,
         );
-        print('a');
+        // print('a');
       } else {
         // Sign user up
         await Provider.of<Auth>(context, listen: false).signUp(
@@ -153,29 +150,27 @@ class _AuthCardState extends State<AuthCard> {
         );
         print('a');
       }
-    }
-    // on HttpExtentions catch (error) {
-    //   var errorMessage = 'Authentication failed';
-    //   if (error.toString().contains('EMAIL_EXISTS')) {
-    //     errorMessage = 'This email address is already in use.';
-    //   } else if (error.toString().contains('INVALID_EMAIL')) {
-    //     errorMessage = 'This is not a valid email address';
-    //   } else if (error.toString().contains('WEAK_PASSWORD')) {
-    //     errorMessage = 'This password is too weak.';
-    //   } else if (error.toString().contains('EMAIL_NOT_FOUND')) {
-    //     errorMessage = 'Could not find a user with that email.';
-    //   } else if (error.toString().contains('INVALID_PASSWORD')) {
-    //     errorMessage = 'Invalid password.';
-    //   }
-    //   print(errorMessage);
-    //   // _showErrorDialog(errorMessage);
-    // }
-    catch (error) {
-      // const errorMessage =
-      //     'Could not authenticate you. Please try again later.';
-      // print(errorMessage);
+    } on HttpExtentions catch (error) {
+      var errorMessage = 'Authentication failed';
+      if (error.toString().contains('EMAIL_EXISTS')) {
+        errorMessage = 'This email address is already in use.';
+      } else if (error.toString().contains('INVALID_EMAIL')) {
+        errorMessage = 'This is not a valid email address';
+      } else if (error.toString().contains('WEAK_PASSWORD')) {
+        errorMessage = 'This password is too weak.';
+      } else if (error.toString().contains('EMAIL_NOT_FOUND')) {
+        errorMessage = 'Could not find a user with that email.';
+      } else if (error.toString().contains('INVALID_PASSWORD')) {
+        errorMessage = 'Invalid password.';
+      }
+      print(errorMessage);
+      _showErrorDialog(errorMessage);
+    } catch (error) {
+      const errorMessage =
+          'Could not authenticate you. Please try again later.';
+      print(errorMessage);
       print(error);
-      // _showErrorDialog(errorMessage);
+      _showErrorDialog(errorMessage);
     }
 
     setState(() {
@@ -203,7 +198,9 @@ class _AuthCardState extends State<AuthCard> {
         borderRadius: BorderRadius.circular(10.0),
       ),
       elevation: 8.0,
-      child: Container(
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeIn,
         height: _authMode == AuthMode.Signup ? 320 : 260,
         constraints:
             BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 320 : 260),

@@ -13,7 +13,7 @@ class AppDrawer extends StatelessWidget {
       child: Column(
         children: [
           AppBar(
-            title: Text('data'),
+            title: const Text('data'),
             automaticallyImplyLeading: false,
           ),
           const Divider(),
@@ -45,8 +45,14 @@ class AppDrawer extends StatelessWidget {
             leading: const Icon(Icons.logout),
             title: const Text('Log Out'),
             onTap: () {
+              // try {
               Navigator.of(context).pop();
+              Navigator.of(context).pushReplacementNamed('/');
+
               Provider.of<Auth>(context, listen: false).logout();
+              // } catch (e) {
+              //   print('object');
+              // }
             },
           ),
         ],

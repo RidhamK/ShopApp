@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shopapp/provider/product.dart';
 
 import 'package:shopapp/provider/products.dart';
 
@@ -23,9 +24,12 @@ class ProductDetailScreen extends StatelessWidget {
             width: double.infinity,
             height: 300,
             margin: const EdgeInsets.all(10),
-            child: Image.network(
-              loadedProducts.imageUrl,
-              fit: BoxFit.cover,
+            child: Hero(
+              tag: loadedProducts.id as Object,
+              child: Image.network(
+                loadedProducts.imageUrl,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           const SizedBox(

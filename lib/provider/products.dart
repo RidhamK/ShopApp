@@ -41,7 +41,7 @@ class Products with ChangeNotifier {
     //        // ),
   ];
 
-  final String? authtoken;
+  String? authtoken;
   String? userId;
   // final Product previousProducts;
 
@@ -114,6 +114,8 @@ class Products with ChangeNotifier {
           'https://shop-app-cee2b-default-rtdb.firebaseio.com/userFav/$userId.json?auth=$authtoken');
       final favoriteResponse = await http.get(url);
       final favoriteData = json.decode(favoriteResponse.body);
+      // print(favoriteData['-MgeSe-BwJz5HblzVD4T']);
+
       final List<Product> loadedProducts = [];
       extractedData.forEach((prodId, prodData) {
         loadedProducts.add(Product(
@@ -122,11 +124,12 @@ class Products with ChangeNotifier {
           description: prodData['description'],
           price: prodData['price'],
           isFavorite:
-              favoriteData == null ? false : favoriteData[prodId] ?? false,
+              favoriteData == null ? false : favoriteData['prodId'] ?? false,
           imageUrl: prodData['imageUrl'],
         ));
       });
       item = loadedProducts;
+      print(item.length);
       notifyListeners();
     } catch (error) {
       throw (error);

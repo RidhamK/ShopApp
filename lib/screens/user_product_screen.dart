@@ -12,18 +12,15 @@ import 'edit_product_screen.dart';
 class UserProduct extends StatelessWidget {
   const UserProduct({Key? key}) : super(key: key);
   static const routeName = 'user-Product';
+
   Future<void> _refresh(BuildContext context) async {
-    try {
-      Provider.of<Products>(context, listen: false).fetchData(true);
-    } catch (e) {
-      print('e');
-    }
+    await Provider.of<Products>(context, listen: false).fetchData(true);
   }
 
   @override
   Widget build(BuildContext context) {
     // final productData = Provider.of<Products>(context);
-
+    print('rebuilding...');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Products'),
